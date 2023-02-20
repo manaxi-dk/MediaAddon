@@ -9,7 +9,7 @@ import dk.manaxi.mediaapi.Main;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import net.labymod.api.events.PluginMessageEvent;
-import net.labymod.opus.OpusCodec;
+//import net.labymod.opus.OpusCodec;
 import net.minecraft.network.PacketBuffer;
 import org.apache.commons.codec.binary.Base64;
 import org.lwjgl.openal.AL10;
@@ -38,7 +38,7 @@ public class ServerSwitchListener implements PluginMessageEvent {
                     JsonObject jsonObject = parsedServerMessage.getAsJsonObject();
                     byte[] backToBytes = Base64.decodeBase64(jsonObject.get("data").getAsString());
 
-                    Main.getInstance().getPlayerSpeaker().play(backToBytes);
+                    Main.getInstance().getPlayerSpeaker().play(backToBytes, jsonObject.get("id").getAsString());
                 }
             }
         }

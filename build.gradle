@@ -63,7 +63,7 @@ dependencies {
     //your libraries wont be accessible outside of intellij
     //example:
     //compile "studio.dreamys:libSkyblock:1.1.1"
-    shade("uk.co.caprica:vlcj:4.7.3") {
+    /*shade("uk.co.caprica:vlcj:4.7.3") {
         exclude group: 'net.java.dev.jna', module: 'jna'
         exclude group: 'net.java.dev.jna', module: 'jna-platform'
     }
@@ -72,9 +72,7 @@ dependencies {
     }
     shade ('net.java.dev.jna:jna-platform:5.11.0') {
         force = true
-    }
-    shade files("./libs/opus-jni-java-1.0.2.jar")
-    shade ('com.github.stephengold:j-ogg-all:1.0.2')
+    } */
 }
 
 processResources {
