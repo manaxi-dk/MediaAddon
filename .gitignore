@@ -17,3 +17,5 @@ buildNumber.properties
 .classpath
 build/
 .gradle/
+run/
+.idea/
