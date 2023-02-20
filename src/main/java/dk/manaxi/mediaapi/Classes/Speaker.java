@@ -60,7 +60,6 @@ public class Speaker {
             packetBuffer.writeString("done");
             packetBuffer.writeString(jsonObject.toString());
             Main.getInstance().getApi().sendPluginMessage("labymod3:media", new PacketBuffer(packetBuffer.copy()));
-            System.out.println("Sender videre til serveren");
         }).start();
     }
 
