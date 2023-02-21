@@ -11,6 +11,7 @@ import net.minecraft.network.PacketBuffer;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.util.UUID;
 
 import static org.lwjgl.openal.AL10.alGenSources;
@@ -20,19 +21,17 @@ public class Speaker {
             new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000, 16, 1, 2, 48000, false);
 
     @Getter
-    private final int bufferId;
-    @Getter
     private UUID uuid;
     private OggPlayer ogg;
 
     public Speaker(UUID uuid) {
         this.uuid = uuid;
-        this.bufferId = alGenSources();
         ogg = new OggPlayer();
     }
 
     public void cleanup() {
         ogg.release();
+        ogg = new OggPlayer();
     }
 
     public void setLocation(float x, float y, float z) {
@@ -42,17 +41,21 @@ public class Speaker {
     public void play(byte[] data, String id) {
         ByteArrayInputStream input = new ByteArrayInputStream(data);
         ogg.open(new OggInputStream(input));
-        ogg.playInNewThread(5);
         new Thread(() -> {
-            while (ogg.playing()) {
+            ogg.play();
+            while (true) {
                 try {
-                    Thread.sleep(10);
+                    if (!ogg.update()) break;
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+                try {
+                    Thread.sleep(5);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
-            ogg.release();
-            ogg = new OggPlayer();
+            cleanup();
 
             // execute the callback when the sound is finished
             JsonObject jsonObject = new JsonObject();

@@ -23,11 +23,7 @@ public class ServerSwitchListener implements PluginMessageEvent {
     public void receiveMessage(String channelName, PacketBuffer packetBuffer) {
         if (channelName.equals("MC|Brand")) {
             Main.getInstance().getSpeakerManager().cleanup();
-            AL10.alSourceStop(Main.getInstance().getPlayerSpeaker().getBufferId());
-            AL10.alDeleteBuffers(Main.getInstance().getPlayerSpeaker().getBufferId());
-            AL10.alDeleteSources(Main.getInstance().getPlayerSpeaker().getBufferId());
             Main.getInstance().getPlayerSpeaker().cleanup();
-            Main.getInstance().setPlayerSpeaker(new Speaker(UUID.randomUUID()));
         }
         if(channelName.equals("labymod3:media")) {
             String messageKey = readStringFromBuffer(32767, packetBuffer);
