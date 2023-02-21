@@ -51,6 +51,8 @@ public class Speaker {
                     e.printStackTrace();
                 }
             }
+            ogg.release();
+            ogg = new OggPlayer();
 
             // execute the callback when the sound is finished
             JsonObject jsonObject = new JsonObject();
