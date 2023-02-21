@@ -160,7 +160,7 @@ public class OggPlayer {
                 dataBuffer.rewind();
                 boolean mono = (oggInputStream.getFormat() == OggInputStream.FORMAT_MONO16);
                 int format = (mono ? AL10.AL_FORMAT_MONO16 : AL10.AL_FORMAT_STEREO16);
-                AL10.alBufferData(buffer, format, dataBuffer, bytesRead);
+                AL10.alBufferData(buffer, format, dataBuffer, oggInputStream.getRate());
                 check();
                 return true;
             }
