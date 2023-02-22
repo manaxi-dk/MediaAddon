@@ -50,38 +50,42 @@ public class Speaker {
 
     public void play() {
         if(ogg.playing()) {
-            System.out.println("En anden er allerede igang");
             return;
         }
-        OggInputStream oggInputStream = oggInputStreamQueue.poll();
-        ogg.open(oggInputStream);
-        ogg.play();
         new Thread(() -> {
-            while (ogg.playing()) {
-                try {
-                    if (!ogg.update()) {
-                        break;
+            while (!oggInputStreamQueue.isEmpty()) {
+                OggInputStream oggInputStream = oggInputStreamQueue.poll();
+                ogg.open(oggInputStream);
+                ogg.play();
+                while (true) {
+                    try {
+                        if (!ogg.update()) {
+                            break;
+                        }
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (IOException e) {
+                    try {
+                        Thread.sleep(5);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                // execute the callback when the sound is finished
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("id", oggInputStream.getId());
+
+                PacketBuffer packetBuffer = new PacketBuffer(Unpooled.buffer());
+                packetBuffer.writeString("done");
+                packetBuffer.writeString(jsonObject.toString());
+                Main.getInstance().getApi().sendPluginMessage("labymod3:media", new PacketBuffer(packetBuffer.copy()));
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
-                try {
-                    Thread.sleep(5);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
-
-            play();
-
-            // execute the callback when the sound is finished
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("id", oggInputStream.getId());
-
-            PacketBuffer packetBuffer = new PacketBuffer(Unpooled.buffer());
-            packetBuffer.writeString("done");
-            packetBuffer.writeString(jsonObject.toString());
-            Main.getInstance().getApi().sendPluginMessage("labymod3:media", new PacketBuffer(packetBuffer.copy()));
         }).start();
     }
 
