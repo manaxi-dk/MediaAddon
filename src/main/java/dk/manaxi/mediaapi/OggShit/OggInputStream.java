@@ -9,6 +9,7 @@ import com.jcraft.jorbis.Block;
 import com.jcraft.jorbis.Comment;
 import com.jcraft.jorbis.DspState;
 import com.jcraft.jorbis.Info;
+import lombok.Getter;
 
 import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
@@ -82,13 +83,16 @@ public class OggInputStream extends FilterInputStream {
 
     // a dummy used by read() to read 1 byte.
     private byte readDummy[] = new byte[1];
+    @Getter
+    private String id;
 
 
     /**
      * Creates an OggInputStream that decompressed the specified ogg file.
      */
-    public OggInputStream(InputStream input) {
+    public OggInputStream(InputStream input, String id) {
         super(input);
+        this.id = id;
         try {
             initVorbis();
             _index = new int[info.channels];
@@ -534,29 +538,5 @@ public class OggInputStream extends FilterInputStream {
         s = s + "channels        " + info.channels        + "\n";
         s = s + "rate (hz)       " + info.rate            ;
         return s;
-    }
-
-
-    /**
-     * Tests this class by decoding an ogg file to a byte buffer.
-     */
-    public static void main(String args[]) {
-        try {
-            InputStream in = new Object().getClass().getResourceAsStream("/audio/slash.ogg");
-            ByteArrayOutputStream byteOut = new ByteArrayOutputStream(1024*256);
-            byteOut.reset();
-            byte copyBuffer[] = new byte[1024*4];
-            OggInputStream oggInput = new OggInputStream(in);
-            boolean done = false;
-            while (!done) {
-                int bytesRead = oggInput.read(copyBuffer, 0, copyBuffer.length);
-                byteOut.write(copyBuffer, 0, bytesRead);
-                done = (bytesRead != copyBuffer.length || bytesRead < 0);
-            }
-            System.out.println(byteOut.size() + " bytes read");
-            System.out.println(oggInput);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

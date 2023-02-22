@@ -8,10 +8,13 @@ import dk.manaxi.mediaapi.OggShit.OggPlayer;
 import io.netty.buffer.Unpooled;
 import lombok.Getter;
 import net.minecraft.network.PacketBuffer;
+import org.lwjgl.Sys;
 
 import javax.sound.sampled.AudioFormat;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.UUID;
 
 import static org.lwjgl.openal.AL10.alGenSources;
@@ -23,10 +26,12 @@ public class Speaker {
     @Getter
     private UUID uuid;
     private OggPlayer ogg;
+    private Queue<OggInputStream> oggInputStreamQueue;
 
     public Speaker(UUID uuid) {
         this.uuid = uuid;
         ogg = new OggPlayer();
+        oggInputStreamQueue = new LinkedList<>();
     }
 
     public void cleanup() {
@@ -38,14 +43,25 @@ public class Speaker {
         ogg.setPosition(x, y, z);
     }
 
-    public void play(byte[] data, String id) {
+    public void addSound(byte[] data, String id) {
         ByteArrayInputStream input = new ByteArrayInputStream(data);
-        ogg.open(new OggInputStream(input));
+        oggInputStreamQueue.add(new OggInputStream(input, id));
+    }
+
+    public void play() {
+        if(ogg.playing()) {
+            System.out.println("En anden er allerede igang");
+            return;
+        }
+        OggInputStream oggInputStream = oggInputStreamQueue.poll();
+        ogg.open(oggInputStream);
+        ogg.play();
         new Thread(() -> {
-            ogg.play();
-            while (true) {
+            while (ogg.playing()) {
                 try {
-                    if (!ogg.update()) break;
+                    if (!ogg.update()) {
+                        break;
+                    }
                 } catch (IOException e) {
                     throw new RuntimeException(e);
                 }
@@ -55,11 +71,12 @@ public class Speaker {
                     e.printStackTrace();
                 }
             }
-            cleanup();
+
+            play();
 
             // execute the callback when the sound is finished
             JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("id", id);
+            jsonObject.addProperty("id", oggInputStream.getId());
 
             PacketBuffer packetBuffer = new PacketBuffer(Unpooled.buffer());
             packetBuffer.writeString("done");

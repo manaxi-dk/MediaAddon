@@ -34,7 +34,8 @@ public class ServerSwitchListener implements PluginMessageEvent {
                     JsonObject jsonObject = parsedServerMessage.getAsJsonObject();
                     byte[] backToBytes = Base64.decodeBase64(jsonObject.get("data").getAsString());
 
-                    Main.getInstance().getPlayerSpeaker().play(backToBytes, jsonObject.get("id").getAsString());
+                    Main.getInstance().getPlayerSpeaker().addSound(backToBytes, jsonObject.get("id").getAsString());
+                    Main.getInstance().getPlayerSpeaker().play();
                 }
             }
         }
