@@ -31,10 +31,10 @@ public class OggPlayer {
     // is used to unpack ogg file.
     private OggInputStream oggInputStream;
 
-    // a seperate thread that calls update.
+    // a separate thread that calls update.
     private PlayerThread playerThread = null;
 
-    // set to true when player is initalized.
+    // set to true when player is initialized.
     private boolean initalized = false;
 
 
@@ -231,34 +231,6 @@ public class OggPlayer {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-
-    /**
-     * Plays an ogg file.
-     * @param args the class path containing the file to play.
-     */
-    public static void main(String args[]) {
-        OggPlayer ogg = new OggPlayer();
-        try {
-            if (args.length < 1) {
-                args = new String[1];
-                args[0] = "/audio/Madrugada - Ice.ogg";
-            }
-
-            AL.create();
-            InputStream input = ogg.getClass().getResourceAsStream(args[0]);
-            ogg.open(new OggInputStream(input));
-            ogg.play();
-            while (ogg.update()) {
-                Thread.sleep(5);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            ogg.release();
-            AL.destroy();
         }
     }
 }
