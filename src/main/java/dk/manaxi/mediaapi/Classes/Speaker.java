@@ -7,6 +7,7 @@ import dk.manaxi.mediaapi.OggShit.OggInputStream;
 import dk.manaxi.mediaapi.OggShit.OggPlayer;
 import io.netty.buffer.Unpooled;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.network.PacketBuffer;
 import org.lwjgl.Sys;
 
@@ -20,12 +21,10 @@ import java.util.UUID;
 import static org.lwjgl.openal.AL10.alGenSources;
 
 public class Speaker {
-    private static AudioFormat format =
-            new AudioFormat(AudioFormat.Encoding.PCM_SIGNED, 48000, 16, 1, 2, 48000, false);
-
     @Getter
     private UUID uuid;
     private OggPlayer ogg;
+    @Getter @Setter
     private Queue<OggInputStream> oggInputStreamQueue;
 
     public Speaker(UUID uuid) {
@@ -44,7 +43,9 @@ public class Speaker {
     }
 
     public void addSound(byte[] data, String id) {
+        System.out.println("Længde af sounden " + data.length);
         ByteArrayInputStream input = new ByteArrayInputStream(data);
+        System.out.println("Længde af sounden " + input.available());
         oggInputStreamQueue.add(new OggInputStream(input, id));
     }
 
@@ -80,11 +81,8 @@ public class Speaker {
                 packetBuffer.writeString("done");
                 packetBuffer.writeString(jsonObject.toString());
                 Main.getInstance().getApi().sendPluginMessage("labymod3:media", new PacketBuffer(packetBuffer.copy()));
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+
+                ogg.release();
             }
         }).start();
     }

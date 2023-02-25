@@ -31,10 +31,10 @@ public class OggPlayer {
     // is used to unpack ogg file.
     private OggInputStream oggInputStream;
 
-    // a seperate thread that calls update.
+    // a separate thread that calls update.
     private PlayerThread playerThread = null;
 
-    // set to true when player is initalized.
+    // set to true when player is initialized.
     private boolean initalized = false;
 
 

@@ -73,6 +73,7 @@ dependencies {
     shade ('net.java.dev.jna:jna-platform:5.11.0') {
         force = true
     } */
+
 }
 
 processResources {
