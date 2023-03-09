@@ -30,12 +30,10 @@ public class ServerMessageEvent {
         switch (jsonObject.get("type").getAsString()) {
           case "play":
             if(jsonObject.get("data") != null) {
-              System.out.println("spil 1");
               byte[] backToBytes = Base64.getDecoder().decode(jsonObject.get("data").getAsString());
               mediaAddon.getPlayerSpeaker().addSound(backToBytes, jsonObject.get("id").getAsString());
             } else {
               if(bytes == null) return;
-              System.out.println("spil 2");
               mediaAddon.getPlayerSpeaker().addSound(bytes, jsonObject.get("id").getAsString());
               bytes = null;
             }
@@ -45,18 +43,14 @@ public class ServerMessageEvent {
             if(jsonObject.get("data") == null) return;
             byte[] backToBytes = Base64.getDecoder().decode(jsonObject.get("data").getAsString());
             if(bytes == null) {
-              System.out.println("resetter");
               bytes = backToBytes;
             } else {
-              System.out.println("tilføjer");
               try {
                 bytes = OggUtils.joinOggData(bytes, backToBytes);
               } catch (Exception e) {
                 throw new RuntimeException(e);
               }
             }
-            System.out.println("Længde1: " + backToBytes.length);
-            System.out.println("Længde2: " + bytes.length);
             break;
           default:
             throw new IllegalStateException("Unexpected value: " + jsonObject.get("type").getAsString());
