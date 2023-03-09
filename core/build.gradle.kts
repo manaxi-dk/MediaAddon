@@ -6,6 +6,9 @@ plugins {
 
 dependencies {
     api(project(":api"))
+    compileOnly("org.projectlombok:lombok:1.18.22")
+    implementation("com.paulscode:codecjorbis:20101023")
+    implementation("org.lwjgl.lwjgl:lwjgl:2.9.4-nightly-20150209")
 
     // If you want to use external libraries, you can do that here.
     // The dependencies that are specified here are loaded into your project but will also
