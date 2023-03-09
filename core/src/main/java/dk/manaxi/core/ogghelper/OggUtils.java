@@ -1,4 +1,4 @@
-package dk.manaxi.core.OggHelper;
+package dk.manaxi.core.ogghelper;
 
 import java.util.Arrays;
 

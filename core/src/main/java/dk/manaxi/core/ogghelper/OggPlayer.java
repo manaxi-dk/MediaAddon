@@ -1,6 +1,5 @@
-package dk.manaxi.core.OggHelper;
+package dk.manaxi.core.ogghelper;
 
-import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
 
 import java.io.IOException;

@@ -1,8 +1,8 @@
 package dk.manaxi.core;
 
 import com.google.gson.JsonObject;
-import dk.manaxi.core.OggHelper.OggInputStream;
-import dk.manaxi.core.OggHelper.OggPlayer;
+import dk.manaxi.core.ogghelper.OggInputStream;
+import dk.manaxi.core.ogghelper.OggPlayer;
 import lombok.Getter;
 import lombok.Setter;
 import net.labymod.api.client.resources.ResourceLocation;

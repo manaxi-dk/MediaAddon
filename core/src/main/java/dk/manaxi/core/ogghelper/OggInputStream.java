@@ -1,4 +1,4 @@
-package dk.manaxi.core.OggHelper;
+package dk.manaxi.core.ogghelper;
 
 import com.jcraft.jogg.Packet;
 import com.jcraft.jogg.Page;
@@ -8,9 +8,7 @@ import com.jcraft.jorbis.Block;
 import com.jcraft.jorbis.Comment;
 import com.jcraft.jorbis.DspState;
 import com.jcraft.jorbis.Info;
-import lombok.Getter;
 
-import java.io.ByteArrayOutputStream;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
