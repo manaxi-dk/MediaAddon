@@ -6,8 +6,13 @@ import com.google.gson.JsonParser;
 import dk.manaxi.core.MediaAddon;
 import dk.manaxi.core.OggHelper.OggUtils;
 import java.util.Base64;
+import java.util.UUID;
+import dk.manaxi.core.Speaker;
 import net.labymod.api.event.Subscribe;
+import net.labymod.api.event.client.network.server.NetworkDisconnectEvent;
 import net.labymod.api.event.client.network.server.NetworkPayloadEvent;
+import net.labymod.api.event.client.network.server.NetworkServerSwitchEvent;
+import net.labymod.api.event.client.network.server.ServerSwitchEvent;
 import net.labymod.serverapi.protocol.payload.io.PayloadReader;
 
 public class ServerMessageEvent {
@@ -57,6 +62,16 @@ public class ServerMessageEvent {
         }
       }
     }
+  }
+
+  @Subscribe
+  public void onServerSwitch(NetworkServerSwitchEvent event) {
+    mediaAddon.getPlayerSpeaker().cleanup();
+  }
+
+  @Subscribe
+  public void onServerLeave(NetworkDisconnectEvent event) {
+    mediaAddon.getPlayerSpeaker().cleanup();
   }
 
 }
