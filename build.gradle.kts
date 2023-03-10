@@ -15,7 +15,7 @@ labyMod {
         namespace = "mediaaddon"
         displayName = "MediaAddon"
         author = "Itz_Hoffe"
-        description = "Sejt addon"
+        description = "MediaAddon is a LabyMod addon that can play sound to the player!"
         minecraftVersion = "*"
         version = System.getenv().getOrDefault("VERSION", "0.0.1")
     }

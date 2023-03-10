@@ -1,7 +1,7 @@
 {
   "mediaaddon": {
     "settings": {
-      "name": "ExampleAddon",
+      "name": "MediaAddon",
       "enabled": {
         "name": "Enabled"
       }
