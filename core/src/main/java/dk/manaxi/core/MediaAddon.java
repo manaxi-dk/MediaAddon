@@ -1,8 +1,6 @@
 package dk.manaxi.core;
 
 import dk.manaxi.core.listener.ServerMessageEvent;
-import dk.manaxi.core.packet.AddSoundPacket;
-import dk.manaxi.core.packet.MediaProtocol;
 import lombok.Getter;
 import lombok.Setter;
 import net.labymod.api.Laby;
