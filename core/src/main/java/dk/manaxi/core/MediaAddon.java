@@ -1,17 +1,13 @@
 package dk.manaxi.core;
 
 import dk.manaxi.core.listener.ServerMessageEvent;
-import lombok.Getter;
-import lombok.Setter;
-import net.labymod.api.Laby;
+import java.util.UUID;
 import net.labymod.api.addon.LabyAddon;
 import net.labymod.api.models.addon.annotation.AddonMain;
-import java.util.UUID;
 
 @AddonMain
 public class MediaAddon extends LabyAddon<MediaConfiguration> {
   private Speaker playerSpeaker;
-
 
   @Override
   protected void enable() {

@@ -24,7 +24,7 @@ public class ServerMessageEvent {
       PayloadReader reader = new PayloadReader(event.getPayload());
       String messageKey = reader.readString();
       String messageContent = reader.readString();
-      JsonElement parsedServerMessage = JsonParser.parseString(messageContent);
+      JsonElement parsedServerMessage = new JsonParser().parseString(messageContent);
       if(messageKey.equals("sound")) {
         if(!parsedServerMessage.isJsonObject()) return;
         JsonObject jsonObject = parsedServerMessage.getAsJsonObject();
