@@ -7,14 +7,13 @@ import dk.manaxi.core.MediaAddon;
 import dk.manaxi.core.ogghelper.OggUtils;
 import java.util.Base64;
 import net.labymod.api.event.Subscribe;
-import net.labymod.api.event.client.network.server.NetworkDisconnectEvent;
 import net.labymod.api.event.client.network.server.NetworkPayloadEvent;
-import net.labymod.api.event.client.network.server.NetworkServerSwitchEvent;
+import net.labymod.api.event.client.network.server.ServerDisconnectEvent;
+import net.labymod.api.event.client.network.server.SubServerSwitchEvent;
 import net.labymod.serverapi.protocol.payload.io.PayloadReader;
 
 public class ServerMessageEvent {
-  private MediaAddon mediaAddon;
-  private static final JsonParser jsonParser = new JsonParser();
+  private final MediaAddon mediaAddon;
   private static byte[] bytes;
   public ServerMessageEvent(MediaAddon mediaAddon) {
     this.mediaAddon = mediaAddon;
@@ -25,7 +24,7 @@ public class ServerMessageEvent {
       PayloadReader reader = new PayloadReader(event.getPayload());
       String messageKey = reader.readString();
       String messageContent = reader.readString();
-      JsonElement parsedServerMessage = jsonParser.parse(messageContent);
+      JsonElement parsedServerMessage = JsonParser.parseString(messageContent);
       if(messageKey.equals("sound")) {
         if(!parsedServerMessage.isJsonObject()) return;
         JsonObject jsonObject = parsedServerMessage.getAsJsonObject();
@@ -62,12 +61,12 @@ public class ServerMessageEvent {
   }
 
   @Subscribe
-  public void onServerSwitch(NetworkServerSwitchEvent event) {
+  public void onServerSwitch(SubServerSwitchEvent event) {
     mediaAddon.getPlayerSpeaker().cleanup();
   }
 
   @Subscribe
-  public void onServerLeave(NetworkDisconnectEvent event) {
+  public void onServerLeave(ServerDisconnectEvent event) {
     mediaAddon.getPlayerSpeaker().cleanup();
   }
 
