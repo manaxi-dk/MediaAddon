@@ -6,6 +6,7 @@ import com.google.gson.JsonParser;
 import dk.manaxi.core.MediaAddon;
 import dk.manaxi.core.ogghelper.OggUtils;
 import java.util.Base64;
+import net.labymod.api.Laby;
 import net.labymod.api.event.Subscribe;
 import net.labymod.api.event.client.network.server.NetworkPayloadEvent;
 import net.labymod.api.event.client.network.server.ServerDisconnectEvent;
@@ -14,6 +15,7 @@ import net.labymod.serverapi.protocol.payload.io.PayloadReader;
 
 public class ServerMessageEvent {
   private final MediaAddon mediaAddon;
+  private static final JsonParser jsonParser = new JsonParser();
   private static byte[] bytes;
   public ServerMessageEvent(MediaAddon mediaAddon) {
     this.mediaAddon = mediaAddon;
@@ -24,7 +26,8 @@ public class ServerMessageEvent {
       PayloadReader reader = new PayloadReader(event.getPayload());
       String messageKey = reader.readString();
       String messageContent = reader.readString();
-      JsonElement parsedServerMessage = new JsonParser().parseString(messageContent);
+
+      JsonElement parsedServerMessage = jsonParser.parseString(messageContent);
       if(messageKey.equals("sound")) {
         if(!parsedServerMessage.isJsonObject()) return;
         JsonObject jsonObject = parsedServerMessage.getAsJsonObject();
