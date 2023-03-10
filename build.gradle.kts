@@ -12,10 +12,10 @@ java.toolchain.languageVersion.set(JavaLanguageVersion.of(17))
 labyMod {
     defaultPackageName = "dk.manaxi" //change this to your main package name (used by all modules)
     addonInfo {
-        namespace = "media"
+        namespace = "mediaaddon"
         displayName = "MediaAddon"
         author = "Itz_Hoffe"
-        description = "Sejt addon"
+        description = "MediaAddon is a LabyMod addon that can play sound to the player!"
         minecraftVersion = "*"
         version = System.getenv().getOrDefault("VERSION", "0.0.1")
     }
