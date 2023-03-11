@@ -12,6 +12,7 @@ import com.jcraft.jorbis.Info;
 import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -180,7 +181,7 @@ public class OggInputStream extends FilterInputStream {
       return -1;
     }
 
-    b.position(off);
+    ((Buffer) b).position(off);
     int bytesRead = 0;
     while (!eos && (len > 0)) {
       fillConvbuffer();

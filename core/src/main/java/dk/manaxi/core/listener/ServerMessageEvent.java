@@ -11,11 +11,12 @@ import net.labymod.api.event.Subscribe;
 import net.labymod.api.event.client.network.server.NetworkPayloadEvent;
 import net.labymod.api.event.client.network.server.ServerDisconnectEvent;
 import net.labymod.api.event.client.network.server.SubServerSwitchEvent;
+import net.labymod.api.util.io.web.request.WebResolver;
 import net.labymod.serverapi.protocol.payload.io.PayloadReader;
+import org.lwjgl.Sys;
 
 public class ServerMessageEvent {
   private final MediaAddon mediaAddon;
-  private static final JsonParser jsonParser = new JsonParser();
   private static byte[] bytes;
   public ServerMessageEvent(MediaAddon mediaAddon) {
     this.mediaAddon = mediaAddon;
@@ -27,7 +28,7 @@ public class ServerMessageEvent {
       String messageKey = reader.readString();
       String messageContent = reader.readString();
 
-      JsonElement parsedServerMessage = jsonParser.parseString(messageContent);
+      JsonElement parsedServerMessage = WebResolver.GSON.fromJson(messageContent, JsonElement.class);
       if(messageKey.equals("sound")) {
         if(!parsedServerMessage.isJsonObject()) return;
         JsonObject jsonObject = parsedServerMessage.getAsJsonObject();
@@ -65,11 +66,13 @@ public class ServerMessageEvent {
 
   @Subscribe
   public void onServerSwitch(SubServerSwitchEvent event) {
+    mediaAddon.logger().info("ServerSwitch cleanup");
     mediaAddon.getPlayerSpeaker().cleanup();
   }
 
   @Subscribe
   public void onServerLeave(ServerDisconnectEvent event) {
+    mediaAddon.logger().info("ServerDisconnect cleanup");
     mediaAddon.getPlayerSpeaker().cleanup();
   }
 

@@ -3,6 +3,7 @@ package dk.manaxi.core.ogghelper;
 import org.lwjgl.openal.AL10;
 
 import java.io.IOException;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
@@ -41,11 +42,11 @@ public class OggPlayer {
   public void open(OggInputStream input) {
     oggInputStream = input;
 
-    buffers.rewind();
+    ((Buffer) buffers).rewind();
     AL10.alGenBuffers(buffers);
     check();
 
-    source.rewind();
+    ((Buffer) source).rewind();
     AL10.alGenSources(source);
     check();
 
@@ -136,7 +137,7 @@ public class OggPlayer {
       check();
 
       active = stream(buffer.get(0));
-      buffer.rewind();
+      ((Buffer) buffer).rewind();
 
       AL10.alSourceQueueBuffers(source.get(0), buffer);
       check();
@@ -154,7 +155,7 @@ public class OggPlayer {
     try {
       int bytesRead = oggInputStream.read(dataBuffer, 0, dataBuffer.capacity());
       if (bytesRead >= 0) {
-        dataBuffer.rewind();
+        ((Buffer) dataBuffer).rewind();
         boolean mono = (oggInputStream.getFormat() == OggInputStream.FORMAT_MONO16);
         int format = (mono ? AL10.AL_FORMAT_MONO16 : AL10.AL_FORMAT_STEREO16);
         AL10.alBufferData(buffer, format, dataBuffer, oggInputStream.getRate());

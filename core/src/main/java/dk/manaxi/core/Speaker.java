@@ -5,6 +5,7 @@ import dk.manaxi.core.ogghelper.OggInputStream;
 import dk.manaxi.core.ogghelper.OggPlayer;
 import lombok.Getter;
 import lombok.Setter;
+import net.labymod.api.Laby;
 import net.labymod.api.client.resources.ResourceLocation;
 import net.labymod.serverapi.protocol.payload.io.PayloadWriter;
 import java.io.ByteArrayInputStream;
