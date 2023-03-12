@@ -1,4 +1,4 @@
-package dk.manaxi.core.ogghelper;
+package dk.manaxi.core.audio;
 
 import com.jcraft.jogg.Packet;
 import com.jcraft.jogg.Page;

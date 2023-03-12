@@ -1,12 +1,17 @@
-package dk.manaxi.core.ogghelper;
+package dk.manaxi.core.audio;
 
+import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
+import paulscode.sound.SoundSystem;
 
 import java.io.IOException;
 import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
+
+import static org.lwjgl.openal.AL10.AL_FORMAT_MONO16;
+import static org.lwjgl.openal.AL10.AL_GAIN;
 
 /**
  * Plays ogg files using lwjgl's openal.
@@ -39,7 +44,7 @@ public class OggPlayer {
   /**
    * Opens the specified ogg file in the classpath.
    */
-  public void open(OggInputStream input) {
+  public void open(OggInputStream input, Speaker speaker) {
     oggInputStream = input;
 
     ((Buffer) buffers).rewind();
@@ -52,15 +57,57 @@ public class OggPlayer {
 
     initalized = true;
 
-    AL10.alSource3f(source.get(0), AL10.AL_POSITION, 0, 0, 0);
-    AL10.alSource3f(source.get(0), AL10.AL_VELOCITY, 0, 0, 0);
-    AL10.alSource3f(source.get(0), AL10.AL_DIRECTION, 0, 0, 0);
-    AL10.alSourcef(source.get(0), AL10.AL_ROLLOFF_FACTOR, 0);
-    AL10.alSourcei(source.get(0), AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
+// Set the gain of the audio source
+    AL10.alSourcef(source.get(0), AL_GAIN, speaker.getGain());
+    AL10.alSource3f(source.get(0), AL10.AL_POSITION, speaker.getPositionX(), speaker.getPositionY(), speaker.getPositionZ());
+    AL10.alSource3f(source.get(0), AL10.AL_VELOCITY, speaker.getVelocityX(), speaker.getVelocityY(), speaker.getVelocityZ());
+    AL10.alSource3f(source.get(0), AL10.AL_DIRECTION, speaker.getDirectionX(), speaker.getDirectionY(), speaker.getDirectionZ());
+    AL10.alSourcef(source.get(0), AL10.AL_ROLLOFF_FACTOR, speaker.getRollOff());
+    if(speaker.isRelative()) {
+      AL10.alSourcei(source.get(0), AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
+    } else {
+      AL10.alSourcei(source.get(0), AL10.AL_SOURCE_RELATIVE, AL10.AL_FALSE);
+    }
+  }
+
+  public void setGain(float gain) {
+    if(initalized) {
+      AL10.alSourcef(source.get(0), AL_GAIN, gain);
+    }
   }
 
   public void setPosition(float x, float y, float z) {
+    if(initalized) {
+      AL10.alSource3f(source.get(0), AL10.AL_POSITION, x, y, z);
+    }
+  }
 
+  public void setVelocity(float x, float y, float z) {
+    if(initalized) {
+      AL10.alSource3f(source.get(0), AL10.AL_VELOCITY, x, y, z);
+    }
+  }
+
+  public void setDirection(float x, float y, float z) {
+    if(initalized) {
+      AL10.alSource3f(source.get(0), AL10.AL_DIRECTION, x, y, z);
+    }
+  }
+
+  public void setRelative(boolean value) {
+    if(initalized) {
+      if(value) {
+        AL10.alSourcei(source.get(0), AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
+      } else {
+        AL10.alSourcei(source.get(0), AL10.AL_SOURCE_ABSOLUTE, AL10.AL_TRUE);
+      }
+    }
+  }
+
+  public void setRollOff(float value) {
+    if(initalized) {
+      AL10.alSourcef(source.get(0), AL10.AL_DIRECTION, value);
+    }
   }
 
 
@@ -157,7 +204,7 @@ public class OggPlayer {
       if (bytesRead >= 0) {
         ((Buffer) dataBuffer).rewind();
         boolean mono = (oggInputStream.getFormat() == OggInputStream.FORMAT_MONO16);
-        int format = (mono ? AL10.AL_FORMAT_MONO16 : AL10.AL_FORMAT_STEREO16);
+        int format = (mono ? AL_FORMAT_MONO16 : AL10.AL_FORMAT_STEREO16);
         AL10.alBufferData(buffer, format, dataBuffer, oggInputStream.getRate());
         check();
         return true;

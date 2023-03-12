@@ -6,7 +6,8 @@ plugins {
 
 dependencies {
     api(project(":api"))
-    compileOnly("org.projectlombok:lombok:1.18.22")
+    compileOnly("org.projectlombok:lombok:1.18.26")
+    annotationProcessor("org.projectlombok:lombok:1.18.26")
     implementation("com.paulscode:codecjorbis:20101023")
     implementation("org.lwjgl.lwjgl:lwjgl:2.9.4-nightly-20150209")
     compileOnly("com.google.code.gson:gson:2.10")

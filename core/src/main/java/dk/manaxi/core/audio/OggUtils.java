@@ -1,4 +1,4 @@
-package dk.manaxi.core.ogghelper;
+package dk.manaxi.core.audio;
 
 import java.util.Arrays;
 
