@@ -18,7 +18,6 @@ labyMod {
         description = "MediaAddon is a LabyMod addon that can play sound to the player!"
         minecraftVersion = "*"
         version = System.getenv().getOrDefault("VERSION", "0.0.1")
-        iconUrl = "https://i.imgur.com/rKiCAp6.png"
     }
 
     minecraft {
