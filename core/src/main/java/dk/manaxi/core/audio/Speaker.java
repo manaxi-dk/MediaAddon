@@ -19,6 +19,7 @@ public class Speaker {
   private UUID uuid;
   private OggPlayer ogg;
   private Queue<OggInputStream> oggInputStreamQueue;
+  @Getter
   private MediaAddon mediaAddon;
   @Getter @Setter
   private byte[] bytes;
@@ -45,7 +46,9 @@ public class Speaker {
   @Getter
   private float gain = 1;
   @Getter
-  private boolean relative = true;
+  private int distance = 50;
+  @Getter @Setter
+  private boolean player = false;
 
   public Speaker(UUID uuid, MediaAddon mediaAddon) {
     this.uuid = uuid;
@@ -67,7 +70,12 @@ public class Speaker {
 
   public void setGain(float gain) {
     this.gain = gain;
-    ogg.setGain(gain);
+    ogg.setGain();
+  }
+
+  public void setDistance(int distance) {
+    this.distance = distance;
+    ogg.setDistance();
   }
 
   public void setLocation(float x, float y, float z) {
@@ -75,30 +83,6 @@ public class Speaker {
     positionY = y;
     positionZ = z;
     ogg.setPosition(x, y, z);
-  }
-
-  public void setVelocity(float x, float y, float z) {
-    velocityX = x;
-    velocityY = y;
-    velocityZ = z;
-    ogg.setVelocity(x, y, z);
-  }
-
-  public void setDirection(float x, float y, float z) {
-    directionX = x;
-    directionY = y;
-    directionZ = z;
-    ogg.setDirection(x, y, z);
-  }
-
-  public void setRollOff(float value) {
-    rollOff = value;
-    ogg.setRollOff(value);
-  }
-
-  public void setRelative(boolean value) {
-    relative = value;
-    ogg.setRelative(value);
   }
 
   public void addSound(byte[] data, String id) {
@@ -117,7 +101,7 @@ public class Speaker {
         ogg.play();
         while (true) {
           try {
-            if (!ogg.update()) {
+            if (!ogg.update(this)) {
               break;
             }
           } catch (IOException e) {

@@ -1,8 +1,12 @@
 package dk.manaxi.core.audio;
 
+import dk.manaxi.core.audio.runnable.AudioDistanceChecker;
+import net.labymod.api.client.entity.player.Player;
 import org.lwjgl.openal.AL;
 import org.lwjgl.openal.AL10;
+import org.lwjgl.openal.AL11;
 import paulscode.sound.SoundSystem;
+import paulscode.sound.Vector3D;
 
 import java.io.IOException;
 import java.nio.Buffer;
@@ -10,8 +14,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.IntBuffer;
 
+import static org.lwjgl.openal.AL10.AL_DISTANCE_MODEL;
 import static org.lwjgl.openal.AL10.AL_FORMAT_MONO16;
 import static org.lwjgl.openal.AL10.AL_GAIN;
+import static org.lwjgl.openal.AL10.AL_MAX_DISTANCE;
+import static org.lwjgl.openal.AL10.AL_REFERENCE_DISTANCE;
 
 /**
  * Plays ogg files using lwjgl's openal.
@@ -34,11 +41,12 @@ public class OggPlayer {
   // is used to unpack ogg file.
   private OggInputStream oggInputStream;
 
-  // a separate thread that calls update.
-  private PlayerThread playerThread = null;
-
   // set to true when player is initialized.
   private boolean initalized = false;
+
+  private Thread thread;
+
+  private Speaker speaker;
 
 
   /**
@@ -57,56 +65,65 @@ public class OggPlayer {
 
     initalized = true;
 
-// Set the gain of the audio source
-    AL10.alSourcef(source.get(0), AL_GAIN, speaker.getGain());
-    AL10.alSource3f(source.get(0), AL10.AL_POSITION, speaker.getPositionX(), speaker.getPositionY(), speaker.getPositionZ());
-    AL10.alSource3f(source.get(0), AL10.AL_VELOCITY, speaker.getVelocityX(), speaker.getVelocityY(), speaker.getVelocityZ());
-    AL10.alSource3f(source.get(0), AL10.AL_DIRECTION, speaker.getDirectionX(), speaker.getDirectionY(), speaker.getDirectionZ());
-    AL10.alSourcef(source.get(0), AL10.AL_ROLLOFF_FACTOR, speaker.getRollOff());
-    if(speaker.isRelative()) {
-      AL10.alSourcei(source.get(0), AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
-    } else {
-      AL10.alSourcei(source.get(0), AL10.AL_SOURCE_RELATIVE, AL10.AL_FALSE);
+    AL10.alSourcei(source.get(0), AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
+
+    this.speaker = speaker;
+    Player player = speaker.getMediaAddon().labyAPI().minecraft().getClientPlayer();
+
+    if(!speaker.isPlayer()) {
+      AL10.alDistanceModel(AL11.AL_EXPONENT_DISTANCE);
+      AL10.alSourcei(source.get(0), AL_REFERENCE_DISTANCE, speaker.getDistance());
+      AL10.alSourcei(source.get(0), AL_MAX_DISTANCE, 100);
+      thread = new Thread(new AudioDistanceChecker(speaker, source, speaker.getDistance(), speaker.getGain()));
+      thread.start();
+
+      Vector3D selfPlayerLocation = new Vector3D(player.getPosX(), player.getPosY(), player.getPosZ());
+      Vector3D otherLocation = new Vector3D(speaker.getPositionX(), speaker.getPositionY(), speaker.getPositionZ());
+      Vector3D differenceLocation = otherLocation.clone().subtract(selfPlayerLocation);
+      differenceLocation = rotateVectorCC(differenceLocation, new Vector3D(0.0F, 1.0F, 0.0F), Math.toRadians(player.getRotationYaw()));
+      differenceLocation.x = -differenceLocation.x;
+      differenceLocation.y = -differenceLocation.y;
+      if (Math.abs(differenceLocation.x) < 0.1D)
+        differenceLocation.x = 0.0F;
+      if (Math.abs(differenceLocation.z) < 0.1D)
+        differenceLocation.z = 0.0F;
+      AL10.alSource3f(source.get(0), AL10.AL_POSITION, differenceLocation.x, differenceLocation.y, differenceLocation.z);
+    }
+    AL10.alSource3f(source.get(0), AL10.AL_POSITION, 0, 0, 0);
+    AL10.alSourcef(source.get(0), AL10.AL_ROLLOFF_FACTOR, 3.4f);
+  }
+
+  public void setGain() {
+    if(initalized) {
+      setPosition(speaker.getPositionX(), speaker.getPositionY(), speaker.getPositionZ());
     }
   }
 
-  public void setGain(float gain) {
+  public void setDistance() {
     if(initalized) {
-      AL10.alSourcef(source.get(0), AL_GAIN, gain);
+      setPosition(speaker.getPositionX(), speaker.getPositionY(), speaker.getPositionZ());
     }
   }
 
   public void setPosition(float x, float y, float z) {
-    if(initalized) {
-      AL10.alSource3f(source.get(0), AL10.AL_POSITION, x, y, z);
-    }
-  }
+    if(initalized && !speaker.isPlayer()) {
+      thread.stop();
+      Player player = speaker.getMediaAddon().labyAPI().minecraft().getClientPlayer();
 
-  public void setVelocity(float x, float y, float z) {
-    if(initalized) {
-      AL10.alSource3f(source.get(0), AL10.AL_VELOCITY, x, y, z);
-    }
-  }
+      thread = new Thread(new AudioDistanceChecker(speaker, source, speaker.getDistance(), speaker.getGain()));
+      thread.start();
 
-  public void setDirection(float x, float y, float z) {
-    if(initalized) {
-      AL10.alSource3f(source.get(0), AL10.AL_DIRECTION, x, y, z);
-    }
-  }
-
-  public void setRelative(boolean value) {
-    if(initalized) {
-      if(value) {
-        AL10.alSourcei(source.get(0), AL10.AL_SOURCE_RELATIVE, AL10.AL_TRUE);
-      } else {
-        AL10.alSourcei(source.get(0), AL10.AL_SOURCE_ABSOLUTE, AL10.AL_TRUE);
-      }
-    }
-  }
-
-  public void setRollOff(float value) {
-    if(initalized) {
-      AL10.alSourcef(source.get(0), AL10.AL_DIRECTION, value);
+      Vector3D selfPlayerLocation = new Vector3D(player.getPosX(), player.getPosY(), player.getPosZ());
+      Vector3D otherLocation = new Vector3D(speaker.getPositionX(), speaker.getPositionY(), speaker.getPositionZ());
+      Vector3D differenceLocation = otherLocation.clone().subtract(selfPlayerLocation);
+      differenceLocation = rotateVectorCC(differenceLocation, new Vector3D(0.0F, 1.0F, 0.0F), Math.toRadians(player.getRotationYaw()));
+      differenceLocation.x = -differenceLocation.x;
+      differenceLocation.y = -differenceLocation.y;
+      if (Math.abs(differenceLocation.x) < 0.1D)
+        differenceLocation.x = 0.0F;
+      if (Math.abs(differenceLocation.z) < 0.1D)
+        differenceLocation.z = 0.0F;
+      AL10.alSource3f(source.get(0), AL10.AL_POSITION, differenceLocation.x, differenceLocation.y, differenceLocation.z);
     }
   }
 
@@ -149,21 +166,6 @@ public class OggPlayer {
 
 
   /**
-   * Plays the track in a newly crated thread.
-   * @param updateIntervalMillis at which interval should the thread call update, in milliseconds.
-   */
-  public boolean playInNewThread(long updateIntervalMillis) {
-    if (play()) {
-      playerThread = new PlayerThread(updateIntervalMillis);
-      playerThread.start();
-      return true;
-    }
-
-    return false;
-  }
-
-
-  /**
    * check if the source is playing
    */
   public boolean playing() {
@@ -175,7 +177,7 @@ public class OggPlayer {
    * Copies data from the ogg stream to openal. Must be called often.
    * @return true if sound is still playing, false if the end of file is reached.
    */
-  public synchronized boolean update() throws IOException {
+  public synchronized boolean update(Speaker speaker) throws IOException {
     boolean active = true;
     int processed = AL10.alGetSourcei(source.get(0), AL10.AL_BUFFERS_PROCESSED);
     while (processed-- > 0) {
@@ -185,12 +187,40 @@ public class OggPlayer {
 
       active = stream(buffer.get(0));
       ((Buffer) buffer).rewind();
+      if(!speaker.isPlayer()) {
+        Player player = speaker.getMediaAddon().labyAPI().minecraft().getClientPlayer();
+
+        Vector3D selfPlayerLocation = new Vector3D(player.getPosX(), player.getPosY(), player.getPosZ());
+        Vector3D otherLocation = new Vector3D(speaker.getPositionX(), speaker.getPositionY(), speaker.getPositionZ());
+        Vector3D differenceLocation = otherLocation.clone().subtract(selfPlayerLocation);
+        differenceLocation = rotateVectorCC(differenceLocation, new Vector3D(0.0F, 1.0F, 0.0F), Math.toRadians(player.getRotationYaw()));
+        differenceLocation.x = -differenceLocation.x;
+        differenceLocation.y = -differenceLocation.y;
+        if (Math.abs(differenceLocation.x) < 0.1D)
+          differenceLocation.x = 0.0F;
+        if (Math.abs(differenceLocation.z) < 0.1D)
+          differenceLocation.z = 0.0F;
+        AL10.alSource3f(source.get(0), AL10.AL_POSITION, differenceLocation.x, differenceLocation.y, differenceLocation.z);
+      }
 
       AL10.alSourceQueueBuffers(source.get(0), buffer);
       check();
     }
 
     return active;
+  }
+
+  public static Vector3D rotateVectorCC(Vector3D vec, Vector3D axis, double theta) {
+    double x = vec.x;
+    double y = vec.y;
+    double z = vec.z;
+    double u = axis.x;
+    double v = axis.y;
+    double w = axis.z;
+    double xPrime = u * (u * x + v * y + w * z) * (1.0D - Math.cos(theta)) + x * Math.cos(theta) + (-w * y + v * z) * Math.sin(theta);
+    double yPrime = v * (u * x + v * y + w * z) * (1.0D - Math.cos(theta)) + y * Math.cos(theta) + (w * x - u * z) * Math.sin(theta);
+    double zPrime = w * (u * x + v * y + w * z) * (1.0D - Math.cos(theta)) + z * Math.cos(theta) + (-v * x + u * y) * Math.sin(theta);
+    return new Vector3D((float)xPrime, (float)yPrime, (float)zPrime);
   }
 
 
@@ -252,30 +282,5 @@ public class OggPlayer {
     ByteBuffer temp = ByteBuffer.allocateDirect(4 * size);
     temp.order(ByteOrder.nativeOrder());
     return temp.asIntBuffer();
-  }
-
-
-  /**
-   * The thread that updates the sound.
-   */
-  class PlayerThread extends Thread {
-    // at what interval update is called.
-    long interval;
-
-    /** Creates the PlayerThread */
-    PlayerThread(long interval) {
-      this.interval = interval;
-    }
-
-    /** Calls update at an interval */
-    public void run() {
-      try {
-        while (update()) {
-          sleep(interval);
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
-      }
-    }
   }
 }

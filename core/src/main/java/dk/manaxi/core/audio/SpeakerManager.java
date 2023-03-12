@@ -20,6 +20,7 @@ public class SpeakerManager {
   public SpeakerManager(MediaAddon mediaAddon) {
     this.mediaAddon = mediaAddon;
     playerSpeaker = new Speaker(UUID.randomUUID(), mediaAddon);
+    playerSpeaker.setPlayer(true);
   }
 
   public Speaker getPlayerSpeaker() {

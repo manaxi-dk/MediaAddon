@@ -51,7 +51,6 @@ public class ServerMessageEvent {
         }
         switch (jsonObject.get("type").getAsString()) {
           case "play":
-            System.out.println("UUID: " + speaker.getUuid());
             if(jsonObject.get("data") != null) {
               byte[] backToBytes = Base64.getDecoder().decode(jsonObject.get("data").getAsString());
               speaker.addSound(backToBytes, jsonObject.get("id").getAsString());
@@ -65,7 +64,6 @@ public class ServerMessageEvent {
           case "addsound":
             if(jsonObject.get("data") == null) return;
             byte[] backToBytes = Base64.getDecoder().decode(jsonObject.get("data").getAsString());
-            System.out.println("UUID: " + speaker.getUuid());
             if(speaker.getBytes() == null) {
               speaker.setBytes(backToBytes);
             } else {
@@ -100,44 +98,12 @@ public class ServerMessageEvent {
 
               }
             }
-            if(jsonObject.get("velocity") != null) {
-              JsonObject velocityObject = jsonObject.get("velocity").getAsJsonObject();
-              try {
-                float x = velocityObject.get("x").getAsFloat();
-                float y = velocityObject.get("y").getAsFloat();
-                float z = velocityObject.get("z").getAsFloat();
-                speaker1.setVelocity(x, y, z);
-              } catch (NullPointerException ex) {
-
-              }
-            }
-            if(jsonObject.get("direction") != null) {
-              JsonObject velocityObject = jsonObject.get("direction").getAsJsonObject();
-              try {
-                float x = velocityObject.get("x").getAsFloat();
-                float y = velocityObject.get("y").getAsFloat();
-                float z = velocityObject.get("z").getAsFloat();
-                speaker1.setDirection(x, y, z);
-              } catch (NullPointerException ex) {
-
-              }
-            }
-            if(jsonObject.get("rolloff") != null) {
-              JsonObject velocityObject = jsonObject.get("rolloff").getAsJsonObject();
-              try {
-                float value = velocityObject.get("value").getAsFloat();
-                speaker1.setRollOff(value);
-              } catch (NullPointerException ex) {
-
-              }
-            }
-            if(jsonObject.get("relative") != null) {
-              speaker1.setRelative(jsonObject.get("relative").getAsBoolean());
-            }
             if(jsonObject.get("gain") != null) {
               speaker1.setGain(jsonObject.get("gain").getAsFloat());
             }
-            System.out.println("UUID: " + speaker1.getUuid());
+            if(jsonObject.get("distance") != null) {
+              speaker1.setDistance(jsonObject.get("distance").getAsInt());
+            }
             mediaAddon.getSpeakerManager().addSpeaker(speaker1);
             break;
           default:
